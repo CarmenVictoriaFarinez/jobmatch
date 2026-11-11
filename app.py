@@ -105,6 +105,49 @@ def render_jd(jd_result: dict) -> None:
                 st.markdown(f"- {item}")
 
 
+def render_match(match: dict) -> None:
+    must_total = sum(match["counts"]["must"].values())
+    col_score, col_must, col_gaps = st.columns(3)
+    col_score.metric("Score", f"{match['score']}/100")
+    col_must.metric(
+        "Must-have cubiertos",
+        f"{match['counts']['must']['covered']}/{must_total}",
+        help="Un must-have parcial cuenta 0,5; un hueco, 0.",
+    )
+    col_gaps.metric("Huecos", len(match["gaps"]))
+    st.progress(
+        match["score"] / 100,
+        text=(
+            f"must-have {match['must_score']:.0%} · nice-to-have {match['nice_score']:.0%} "
+            f"(pesos {match['weights']['must']:.0%}/{match['weights']['nice']:.0%})"
+        ),
+    )
+
+    icons = {"covered": "✅ cubierto", "partial": "🟡 parcial", "missing": "❌ hueco"}
+    labels = {"must": "Must-have", "nice": "Nice-to-have"}
+
+    def esc(text: str) -> str:
+        return text.replace("|", "\\|").replace("\n", " ")
+
+    lines = ["| Tipo | Requisito | Estado | Por qué |", "|---|---|---|---|"]
+    for item in match["requirements"]:
+        lines.append(
+            f"| {labels[item['kind']]} | {esc(item['text'])} | {icons[item['status']]} | {esc(item['reason'])} |"
+        )
+    # Markdown y no st.dataframe: pandas está bloqueado por la política de
+    # Application Control de Windows en esta máquina, y st.dataframe lo importa.
+    st.markdown("\n".join(lines))
+
+    if match["gaps"]:
+        st.markdown("**Qué falta y por qué**")
+        for gap in match["gaps"]:
+            with st.expander(f"{icons[gap['status']]} · {gap['text']}"):
+                st.write(gap["reason"])
+                st.caption(gap["action"])
+                for evidence in gap["evidence"][:3]:
+                    st.markdown(f"- *{evidence['where']}*: {evidence['quote']}")
+
+
 with tab_in:
     cv_file = st.file_uploader("Sube tu CV", type=["pdf", "docx"])
     jd_text = st.text_area(
@@ -158,6 +201,9 @@ with tab_an:
     if not result or not (result.get("cv") or result.get("jd")):
         st.info("Primero sube un CV y pega una oferta en la pestaña Entrada.")
     else:
+        if result.get("match"):
+            render_match(result["match"])
+            st.divider()
         show_warnings(result)
         col_cv, col_jd = st.columns(2, gap="large")
         with col_cv:
@@ -167,23 +213,16 @@ with tab_an:
             if result.get("jd"):
                 render_jd(result["jd"])
 
-        if result["stage"] == "extracted":
-            st.divider()
-            st.info(
-                "Siguiente: score 0–100 y tabla cubierto / parcial / hueco. "
-                "Llega con `match.py`, usando estos dos JSON como entrada."
-            )
-
 with tab_art:
     result = st.session_state.result
     st.subheader("Artefactos")
-    if not result or result["stage"] != "extracted":
+    if not result or result["stage"] != "matched":
         st.info(
             "Cinco bullets reescritos y una carta, cada frase anclada a una línea del CV. "
-            "Se generan cuando exista el match y el Critic."
+            "Se generan cuando exista el score."
         )
     else:
         st.info(
-            "Datos listos. El Writer y el Critic llegan después del score: "
-            "no se redacta sobre un match que aún no existe."
+            "Score listo. Siguiente: Writer produce los bullets y la carta, "
+            "y el Critic rechaza cualquier frase sin evidencia en el CV."
         )

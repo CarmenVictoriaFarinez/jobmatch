@@ -14,6 +14,7 @@ from typing import Callable
 
 from config import MODEL_CV, MODEL_JD
 from extract import ExtractionError, extract_cv, extract_jd
+from match import match_profile
 from readers import ReadError, read_cv_file
 
 MIN_JD_CHARS = 80
@@ -114,9 +115,13 @@ def run_pipeline(
         0.97,
         "Oferta desde caché" if jd_result["meta"].get("cached") else f"Oferta lista en {jd_result['meta'].get('seconds')} s",
     )
-    result["stage"] = "extracted"
-    result["next_step"] = "match y score (días 5–7)"
-    notify(1.0, "Listo")
+
+    # --- Score -----------------------------------------------------------
+    notify(0.99, "Calculando score y huecos…")
+    result["match"] = match_profile(result["cv"]["data"], result["jd"]["data"])
+    result["stage"] = "matched"
+    result["next_step"] = "writer: cinco bullets y carta"
+    notify(1.0, f"Listo · score {result['match']['score']}/100")
     return result
 
 

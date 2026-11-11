@@ -3,9 +3,9 @@
 Workspace para adaptar un CV a una oferta: score explicable, huecos y
 borrador de carta **anclado al CV**. No es un chatbot.
 
-Estado actual: la UI lee PDF/DOCX, extrae CV y oferta a JSON y muestra el
-resultado en **Análisis**, con progreso y caché. Todavía no hay score, huecos
-ni artefactos.
+Estado actual: la UI lee PDF/DOCX, extrae CV y oferta a JSON, calcula un
+**score explicable** con tabla de huecos y lo muestra en **Análisis**.
+Todavía no hay bullets, carta ni Critic.
 
 ## Arranque local (Windows, PowerShell)
 
@@ -35,17 +35,18 @@ python -m venv .venv
 3. Pega el contenido de `samples/oferta_alineada.txt`.
 4. Pulsa **Analizar**. Verás la barra de progreso y el modelo en uso.
    - La primera vez con un CV nuevo: 1–3 min. Después sale de caché.
-5. Pestaña **Análisis**: CV y oferta ya estructurados, con avisos si algo no
-   se sostiene con el texto original.
+5. Pestaña **Análisis**: score 0–100, desglose must-have / nice-to-have, tabla
+   de requisitos y "qué falta y por qué". Debajo, CV y oferta estructurados,
+   con avisos si algo no se sostiene con el texto original.
 6. Pestaña **Artefactos**: aviso de que el Writer llega después del score.
 
 Comprobación sin navegador:
 
 ```powershell
-.venv\Scripts\python.exe -c "from pipeline import run_pipeline; r=run_pipeline(open('samples/cv_ana_ruiz.docx','rb').read(),'cv_ana_ruiz.docx',open('samples/oferta_alineada.txt',encoding='utf-8').read()); print(r['stage'], r['errors'])"
+.venv\Scripts\python.exe -c "from pipeline import run_pipeline; r=run_pipeline(open('samples/cv_ana_ruiz.docx','rb').read(),'cv_ana_ruiz.docx',open('samples/oferta_alineada.txt',encoding='utf-8').read()); print(r['stage'], r['match']['score'], r['errors'])"
 ```
 
-Debe imprimir `extracted []`.
+Debe imprimir `matched 76 []`.
 
 ## Extracción con Ollama
 
@@ -103,6 +104,38 @@ Errores vs avisos: un error (esquema o regla semántica) rechaza la extracción 
 guarda el crudo en `cache/failed/`. Un aviso (posible invención, CV sin fechas)
 se muestra pero no bloquea. La auditoría son heurísticas: avisan para revisar.
 
+### Score y huecos (determinista, sin LLM)
+
+`match.py` compara los dos JSON y da un score 0–100 con razones rastreables.
+No usa el modelo: un score que no se puede explicar no sirve para decidir.
+
+| Estado | Puntos | Cuándo |
+|---|---|---|
+| `covered` | 1,0 | aparece en experiencia laboral, o en skills sin cualificador |
+| `partial` | 0,5 | solo en proyectos o perfil, o skill con "nivel inicial" |
+| `missing` | 0,0 | no aparece en ninguna parte del CV |
+
+Pesos: **70 % must-have / 30 % nice-to-have**. Si una lista está vacía, el peso
+pasa a la otra. Los requisitos se parten por " o " (FastAPI o Flask = camino
+válido alternativo), pero no por "/" (JSON/SQL = dos exigencias).
+
+Resultado con los samples:
+
+| Oferta | Score | Detalle |
+|---|---|---|
+| Alineada (Python/IA) | **76** | 2 must cubiertos, 2 parciales, 0 huecos |
+| Desalineada (SRE/Kubernetes) | **0** | 7 requisitos sin evidencia |
+
+Límite honesto: el léxico de `match.py` es una lista, no comprensión del
+lenguaje. Reconoce tecnologías y alias ES/EN; una herramienta rara caerá al
+modo "solo palabras que aparezcan en el CV". Ampliar `ALIASES` es barato y no
+requiere tocar el resto.
+
+```powershell
+.venv\Scripts\python.exe scripts\try_match.py
+.venv\Scripts\python.exe scripts\try_match.py --offer samples\oferta_desalineada.txt
+```
+
 ### Rendimiento: evitar el cambio de modelo
 
 Ollama solo mantiene un modelo en RAM a la vez en CPU. Pasar de 3b a 7b cuesta
@@ -137,16 +170,28 @@ Mide JSON válido, campos que faltan, posibles inventos y tokens/s. Salidas en
 | `rules.py` | reglas semánticas (proyecto ≠ empleo) | funciona |
 | `textutil.py` | normalización y comparación con la fuente | funciona |
 | `extract.py` | CV/oferta → JSON, con caché | funciona |
-| `match.py` | match + score 0–100 | `NotImplementedError` |
+| `match.py` | score + tabla de huecos (sin LLM) | funciona |
 | `write.py` | 5 bullets + carta | `NotImplementedError` |
 | `prompts/` | plantillas de extracción | CV y oferta listas |
 | `scripts/` | diagnóstico y pruebas manuales | — |
 
 ## Qué no hace aún
 
-Match/score, tabla de huecos, bullets, carta, Critic, RAG/BM25/embeddings,
-LangGraph, historial SQLite, export DOCX y deploy. El PDF imagen-sin-texto
-no se OCR.
+Bullets, carta, Critic, RAG/BM25/embeddings, LangGraph, historial SQLite,
+export DOCX y deploy. El PDF imagen-sin-texto no se OCR.
+
+## Nota de entorno (Windows)
+
+Esta máquina tiene Application Control activo y **bloquea una DLL de pandas**:
+
+```
+ImportError: DLL load failed while importing ops:
+Una directiva de Control de aplicaciones bloqueó este archivo.
+```
+
+`st.dataframe` importa pandas y falla, así que la tabla de requisitos se pinta
+en Markdown. Si añades gráficos o tablas interactivas, comprueba antes que
+pandas importa; si no, usa alternativas sin pandas.
 
 ## Privacidad
 
