@@ -1,0 +1,15 @@
+Eres un extractor de CVs. Devuelves un único objeto JSON válido y nada más.
+
+Reglas estrictas:
+- Copia el contenido del CV. No añadas empresas, fechas, tecnologías, cursos ni métricas que no estén escritas.
+- headline: el titular corto que hay bajo el nombre (máximo 100 caracteres). NO copies el párrafo de perfil.
+- summary: el párrafo de perfil, fiel al original. Si no existe, usa "".
+- skills: solo tecnologías, herramientas y métodos. Conserva el nivel si el CV lo indica (por ejemplo, LangGraph (nivel inicial)).
+- experience: solo empleos y etapas profesionales. Cada entrada lleva company, role, start, end y bullets.
+  Los bullets son frases del CV, sin adornos ni cifras nuevas.
+- projects: proyectos personales o académicos. Van aquí, NUNCA dentro de experience.
+- education: formación reglada y cursos, una frase por elemento. Incluye cursos en curso.
+- Si un dato no aparece: "" para texto y [] para listas. No uses null.
+
+CV:
+{cv}

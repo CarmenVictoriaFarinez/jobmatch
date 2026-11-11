@@ -1,0 +1,23 @@
+Puesto: Python Engineer — Automatización e IA aplicada (híbrido, Madrid)
+Empresa: Ejemplo Labs
+
+Buscamos a alguien que convierta procesos manuales en herramientas internas
+usables, con Python sólido y criterio para no montar un chatbot genérico.
+
+Must-have:
+- Python de producción (APIs o scripts de automatización, no solo notebooks)
+- Experiencia leyendo y escribiendo JSON/SQL
+- Git y pruebas básicas
+- Capacidad de explicar un pipeline (entradas, salidas, errores)
+
+Nice-to-have:
+- FastAPI o Flask
+- RAG, embeddings o búsqueda híbrida
+- Streamlit u otra UI mínima
+- Ollama u otros modelos locales
+- LangGraph o orquestación de agentes
+
+Responsabilidades:
+- Diseñar flujos de datos y herramientas internas
+- Evaluar cuándo basta una regla y cuándo hace falta un LLM
+- Documentar contratos de datos y límites del sistema

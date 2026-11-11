@@ -1,0 +1,17 @@
+Puesto: Platform SRE — Kubernetes (remoto EMEA)
+Empresa: CloudForge
+
+Operarás clusters de producción a escala.
+
+Must-have:
+- 5+ años operando Kubernetes en producción
+- Terraform, Helm, Prometheus, Grafana
+- Guardias 24/7 y respuesta a incidentes P1
+- Certificación CKA o equivalente
+
+Nice-to-have:
+- Istio, Linkerd
+- Golang para operators
+- AWS EKS y networking avanzado (CNI, NetworkPolicies)
+
+No es un rol de Python/aplicación: el día a día es plataforma e infraestructura.

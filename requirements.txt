@@ -1,0 +1,43 @@
+# ============================================================
+# JobMatch / JobFit Studio — dependencias del MVP (Fase 1)
+# ============================================================
+# Probado en Windows 11, Python 3.14.2, dentro de .venv
+# Instalación:
+#   .venv\Scripts\python.exe -m pip install -r requirements.txt
+#
+# Regla: solo lo que el código de HOY importa. Cada fase añade
+# sus librerías. Nada de "por si acaso": menos cosas que romper.
+
+# --- Interfaz (las 3 pantallas: Entrada / Análisis / Artefactos) ---
+streamlit==1.67.0
+
+# --- Lectura del CV (readers.py) ---
+pypdf==7.0.0          # PDF con texto seleccionable (no OCR)
+python-docx==1.2.0    # DOCX (párrafos + tablas)
+
+# --- LLM local (llm.py, extract.py) ---
+requests==2.34.2      # HTTP contra la API de Ollama
+jsonschema==4.26.0    # validar la salida del modelo contra un contrato
+
+# Nota: `requests` y `jsonschema` ya venían como dependencias de Streamlit,
+# pero ahora los importa código tuyo. Si dependes de algo, lo declaras.
+
+# --- Fases siguientes: NO instalar todavía ---
+# Se añadirán aquí cuando el código las use de verdad:
+#
+#   Fase 2 (agentes)
+#     langgraph          # grafo parse -> retrieve -> score -> write -> critique
+#     langchain-core     # prompts y salidas estructuradas
+#     google-generativeai / groq   # Gemini Flash / Groq (API en la nube)
+#     (el cliente de Ollama no hace falta: hablamos HTTP con requests)
+#
+#   Fase 3 (RAG híbrido)
+#     rank-bm25          # BM25 sobre skills/acrónimos
+#     sentence-transformers  # MiniLM local
+#     (torch lo arrastra sentence-transformers; es la dependencia más pesada
+#      y la que más tarda en tener wheel para Python nuevo: verifica ANTES
+#      de prometer "MiniLM local" en la demo pública)
+#
+#   Fase 4 (export y despliegue)
+#     python-docx        # ya está: sirve también para export_docx
+#     (Markdown nativo, sin librería)

@@ -1,0 +1,27 @@
+Ana Ruiz
+Ingeniera de sistemas · Python y automatización
+Madrid · ana.ruiz.ejemplo@email.com
+
+PERFIL
+Ingeniera de sistemas con 4 años automatizando procesos internos y APIs.
+He montado RAG básico, herramientas tipo Tool y orquestación simple de agentes
+con modelos locales (Ollama). Busco rol de IA aplicada / automatización.
+
+SKILLS
+Python, FastAPI, pandas, pytest, Git, Docker, SQL, Streamlit,
+Ollama, RAG, BM25, LangGraph (nivel inicial), Hugging Face Agents,
+automatización de reportes, APIs REST.
+
+EXPERIENCIA
+Ingeniera de automatización — NorteDatos SL (2022–2026)
+- Diseñé jobs en Python que unían Excel, SQL y APIs internas (ahorro ~6 h/semana).
+- Expuse un servicio FastAPI para clasificar tickets y enrutarlos por cola.
+- Documenté runbooks y pruebas pytest para los flujos críticos.
+
+Proyecto propio — JobMatch (2026)
+- Prototipo local: parseo de CV, comparación con oferta y borrador de carta.
+- Stack previsto: Streamlit, Ollama, pipeline lineal (aún sin multi-agente).
+
+FORMACIÓN
+Grado en Ingeniería de Sistemas.
+Curso Hugging Face Agents (en curso): tools, retrieval, orquestación básica.

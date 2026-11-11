@@ -1,0 +1,28 @@
+# Entorno virtual (no subir: pesa y es específico de tu máquina)
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Secretos: claves de Gemini/Groq, BYOK
+.env
+.streamlit/secrets.toml
+
+# Datos locales (Fase 2: SQLite con historial de ofertas)
+*.db
+*.sqlite3
+
+# Artefactos generados por el usuario
+exports/
+
+# Salidas de scripts de diagnóstico (JSON crudo de los modelos)
+scripts/out/
+
+# Caché de extracciones (JSON por CV/oferta) y salidas inválidas
+cache/
+
+# Sistema
+.DS_Store
+Thumbs.db
